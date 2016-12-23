@@ -290,7 +290,6 @@
 					return n.substring(0,3) + d + n.substring(3,6) + d + n.substring(6);
 				case 'ssn':
 					n = '' + n;
-					console.log(n);
 					return n.substring(0,3) + d + n.substring(3,5) + d + n.substring(5);
 			}
 		}
