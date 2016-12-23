@@ -30,7 +30,7 @@
 //              See tests/rand.html
 //
 /* UMD.define */ (function (root, factory) {
-	if (typeof define === 'function' && define.amd){ define([], factory); }else if(typeof exports === 'object'){ module.exports = factory(); }else{ root.returnExports = factory(); window.on = factory(); }
+	if (typeof define === 'function' && define.amd){ define([], factory); }else if(typeof exports === 'object'){ module.exports = factory(); }else{ root.returnExports = factory(); window.rand = factory(); }
 }(this, function () {
 	
 	var
@@ -46,238 +46,254 @@
 		sites = "Google,Facebook,YouTube,Yahoo,Live,Bing,Wikipedia,Blogger,MSN,Twitter,Wordpress,MySpace,Microsoft,Amazon,eBay,LinkedIn,flickr,Craigslist,Rapidshare,Conduit,IMDB,BBC,Go,AOL,Doubleclick,Apple,Blogspot,Orkut,Photobucket,Ask,CNN,Adobe,About,mediafire,CNET,ESPN,ImageShack,LiveJournal,Megaupload,Megavideo,Hotfile,PayPal,NYTimes,Globo,Alibaba,GoDaddy,DeviantArt,Rediff,DailyMotion,Digg,Weather,ning,PartyPoker,eHow,Download,Answers,TwitPic,Netflix,Tinypic,Sourceforge,Hulu,Comcast,Archive,Dell,Stumbleupon,HP,FoxNews,Metacafe,Vimeo,Skype,Chase,Reuters,WSJ,Yelp,Reddit,Geocities,USPS,UPS,Upload,TechCrunch,Pogo,Pandora,LATimes,USAToday,IBM,AltaVista,Match,Monster,JotSpot,BetterVideo,ClubAJAX,Nexplore,Kayak,Slashdot";
 	
 	rand = {
-			real:false,
-			words:words.split(","),
-			wurds:[],
-			names:names.split(","),
-			letters:letters,
-			sites:sites.split(","),
+		real:false,
+		words:words.split(","),
+		wurds:[],
+		names:names.split(","),
+		letters:letters,
+		sites:sites.split(","),
 
-			toArray: function(thing){
-				var
-					nm, i,
-					a = [];
-						
-				if(typeof(thing) === "object" && !(!!thing.push || !!thing.item)){
-					for(nm in thing){ if(thing.hasOwnProperty(nm)){a.push(thing[nm]);} }
-					thing = a;
-				}
-				else if(typeof(thing) === "string"){
-					if(/\./.test(thing)){
-						thing = thing.split(".");
-						thing.pop();
-						i = thing.length;
-						while(i--){
-							thing[i] = this.trim(thing[i]) + ".";
-						}
-					}else if(/,/.test(thing)){
-							thing = thing.split(",");
-					}else if(/\s/.test(thing)){
-							thing = thing.split(" ");
-					}else{
-							thing = thing.split("");
-					}
-				}
-				return thing; //Array
-			},
+		toArray: function(thing){
+			var
+				nm, i,
+				a = [];
 
-			trim: function(s){ // thanks to Dojo:
-				return String.prototype.trim ? s.trim() :
-				s.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-			},
-
-			pad: function(n, amt, chr){
-					var c = chr || "0"; amt = amt || 2;
-					return (c+c+c+c+c+c+c+c+c+c+n).slice(-amt);
-			},
-
-			cap: function(w){
-				return w.charAt(0).toUpperCase() + w.substring(1);
-			},
-
-			weight: function(n, exp){
-				var
-					res,
-					rev = exp < 0;
-				exp = exp===undefined ? 1 : Math.abs(exp)+1;
-				res = Math.pow(n, exp);
-				return rev ? 1 - res : res;
-			},
-
-			n: function(n, w){
-				return Math.floor((n || 10) * this.weight(Math.random(), w));
-			},
-
-			range: function(min, max, w){
-				max = max || 0;
-				return this.n(Math.abs(max-min)+1, w) + (min<max?min:max);
-			},
-
-			element: function(thing, w){
-				// return rand slot, char, prop or range
-				if(typeof(thing) === "number"){ return this.n(thing, w); }
-				thing = this.toArray(thing);
-				return thing[this.n(thing.length, w)];
-			},
-
-			scramble: function(ary){
-				var
-					a = ary.concat([]),
-					sd = [],
-					i = a.length;
-					while(i--){
-						sd.push(a.splice(this.n(a.length), 1)[0]);
-					}
-				return sd;
-			},
-
-			bignumber: function(len){
-				var t="";
-				while(len--){
-						t += this.n(9);
-				}
-				return t;
-			},
-
-			date: function(o){
-				o = o || {};
-				var
-					d,
-					d1 = new Date(o.min || new Date()),
-					d2 = new Date(o.max || new Date().setFullYear(d1.getFullYear()+(o.yearRange||1))).getTime();
-				d1 = d1.getTime();
-				d = new Date(this.range(d1,d2,o.weight));
-				if(o.seconds){
-					return d.getTime();
-				}else if(o.delimiter){
-					return this.pad(d.getMonth()+1)+o.delimiter+this.pad(d.getDate()+1)+o.delimiter+(d.getFullYear());
-				}
-				return d;
-			},
-
-			bool: function(w){
-				return this.n(2, w) < 1;
-			},
-
-			color: function(w){
-				return "#"+this.pad(this.n(255, w).toString(16))+this.pad(this.n(255, w).toString(16))+this.pad(this.n(255, w).toString(16));
-			},
-
-			chars:function(min, max, w){
-				var s = "",
-				i = this.range(min, max, w);
-				while(i--){
-					s += this.letters[this.n(this.letters.length)];
-				}
-				return s;
-			},
-
-			name: function(cse){
-				// cse: 0 title case, 1 lowercase, 2 upper case
-				var s = this.names[this.n(this.names.length)];
-				return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
-			},
-			
-			cityState: function(){
-				return cityStates[this.n(cityStates.length)];
-			},
-			
-			state: function(cse){
-				// cse: 0 title case, 1 lowercase, 2 upper case
-				var s = states[this.n(states.length)];
-				return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
-			},
-			
-			stateCode: function(cse){
-				cse = cse === undefined ? 2 : cse;
-				// cse: 0 title case, 1 lowercase, 2 upper case
-				var s = stateAbbr[this.n(stateAbbr.length)];
-				return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
-			},
-			
-			street: function(noSuffix){
-				var s = streets[this.n(streets.length)];
-				if(!noSuffix){
-					s+= ' ' + streetSuffixes[this.n(streetSuffixes.length)];
-				}
-				return s;
-			},
-
-			site: function(cse){
-				// cse: 0 title case, 1 lowercase, 2 upper case
-				var s = this.sites[this.n(this.sites.length)];
-				return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
-			},
-
-			url: function(usewww, xt){
-				var w = usewww ? "www." : "";
-				xt = xt || ".com";
-				return "http://" + w + this.site(1) + xt;
-			},
-
-			word: function(){
-				var w = this.real ? this.words : this.wurds;
-				return w[this.n(w.length)];
-			},
-
-			sentences: function(minAmt, maxAmt, minLen, maxLen){
-				// amt: sentences, len: words
-				minAmt = minAmt || 1;
-				maxAmt = maxAmt || minAmt;
-				minLen = minLen || 5;
-				maxLen = maxLen || minLen;
-				
-				var
-					ii,
-					s = [],
-					t = "",
-					w = this.real ? this.words : this.wurds,
-					i = this.range(minAmt, maxAmt);
-					
-				while(i--){
-					
-					ii = this.range(minLen, maxLen); while(ii--){
-						s.push(w[this.n(w.length)]);
-					}
-					t += this.cap(s.join(" ")) +". ";
-				}
-				return t;
-			},
-
-			title: function(min, max){
-				min = min || 1; max = max || min;
-				var
-					a = [],
-					w = this.real ? this.words : this.wurds,
-					i = this.range(min, max);
-				while(i--){
-					a.push(this.cap(w[this.n(w.length)]));
-				}
-				return a.join(" ");
-			},
-			data: function(amt){
-				var
-					st,
-					items = [],
-					item,
-					i;
-				for(i = 0; i < amt; i++){
-					item = {
-						firstName: this.name(),
-						lastName: this.name(),
-						company: this.site(),
-						address1: this.bignumber(this.range(3, 5)),
-						address2: this.street(),
-						birthday: this.date({delimiter:'/'})
-					};
-					item.email = (item.firstName.substring(0,1) + item.lastName + '@' + item.company + '.com').toLowerCase();
-					st = this.cityState();
-					item.city = st.split(', ')[0];
-					item.state = st.split(', ')[1];
-					items.push(item);
-				}
-				return items;
+			if(typeof(thing) === "object" && !(!!thing.push || !!thing.item)){
+				for(nm in thing){ if(thing.hasOwnProperty(nm)){a.push(thing[nm]);} }
+				thing = a;
 			}
+			else if(typeof(thing) === "string"){
+				if(/\./.test(thing)){
+					thing = thing.split(".");
+					thing.pop();
+					i = thing.length;
+					while(i--){
+						thing[i] = this.trim(thing[i]) + ".";
+					}
+				}else if(/,/.test(thing)){
+						thing = thing.split(",");
+				}else if(/\s/.test(thing)){
+						thing = thing.split(" ");
+				}else{
+						thing = thing.split("");
+				}
+			}
+			return thing; //Array
+		},
+
+		trim: function(s){ // thanks to Dojo:
+			return String.prototype.trim ? s.trim() :
+			s.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+		},
+
+		pad: function(n, amt, chr){
+				var c = chr || "0"; amt = amt || 2;
+				return (c+c+c+c+c+c+c+c+c+c+n).slice(-amt);
+		},
+
+		cap: function(w){
+			return w.charAt(0).toUpperCase() + w.substring(1);
+		},
+
+		weight: function(n, exp){
+			var
+				res,
+				rev = exp < 0;
+			exp = exp===undefined ? 1 : Math.abs(exp)+1;
+			res = Math.pow(n, exp);
+			return rev ? 1 - res : res;
+		},
+
+		n: function(n, w){
+			return Math.floor((n || 10) * this.weight(Math.random(), w));
+		},
+
+		range: function(min, max, w){
+			max = max || 0;
+			return this.n(Math.abs(max-min)+1, w) + (min<max?min:max);
+		},
+
+		element: function(thing, w){
+			// return rand slot, char, prop or range
+			if(typeof(thing) === "number"){ return this.n(thing, w); }
+			thing = this.toArray(thing);
+			return thing[this.n(thing.length, w)];
+		},
+
+		scramble: function(ary){
+			var
+				a = ary.concat([]),
+				sd = [],
+				i = a.length;
+				while(i--){
+					sd.push(a.splice(this.n(a.length), 1)[0]);
+				}
+			return sd;
+		},
+
+		bignumber: function(len){
+			var t="";
+			while(len--){
+					t += this.n(9);
+			}
+			return t;
+		},
+
+		date: function(o){
+			o = o || {};
+			var
+				d,
+				d1 = new Date(o.min || new Date()),
+				d2 = new Date(o.max || new Date().setFullYear(d1.getFullYear()+(o.yearRange||1))).getTime();
+			d1 = d1.getTime();
+			d = new Date(this.range(d1,d2,o.weight));
+			if(o.seconds){
+				return d.getTime();
+			}else if(o.delimiter){
+				return this.pad(d.getMonth()+1)+o.delimiter+this.pad(d.getDate()+1)+o.delimiter+(d.getFullYear());
+			}
+			return d;
+		},
+
+		bool: function(w){
+			return this.n(2, w) < 1;
+		},
+
+		color: function(w){
+			return "#"+this.pad(this.n(255, w).toString(16))+this.pad(this.n(255, w).toString(16))+this.pad(this.n(255, w).toString(16));
+		},
+
+		chars:function(min, max, w){
+			var s = "",
+			i = this.range(min, max, w);
+			while(i--){
+				s += this.letters[this.n(this.letters.length)];
+			}
+			return s;
+		},
+
+		name: function(cse){
+			// cse: 0 title case, 1 lowercase, 2 upper case
+			var s = this.names[this.n(this.names.length)];
+			return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
+		},
+
+		cityState: function(){
+			return cityStates[this.n(cityStates.length)];
+		},
+
+		state: function(cse){
+			// cse: 0 title case, 1 lowercase, 2 upper case
+			var s = states[this.n(states.length)];
+			return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
+		},
+
+		stateCode: function(cse){
+			cse = cse === undefined ? 2 : cse;
+			// cse: 0 title case, 1 lowercase, 2 upper case
+			var s = stateAbbr[this.n(stateAbbr.length)];
+			return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
+		},
+
+		street: function(noSuffix){
+			var s = streets[this.n(streets.length)];
+			if(!noSuffix){
+				s+= ' ' + streetSuffixes[this.n(streetSuffixes.length)];
+			}
+			return s;
+		},
+
+		site: function(cse){
+			// cse: 0 title case, 1 lowercase, 2 upper case
+			var s = this.sites[this.n(this.sites.length)];
+			return !cse ? s : cse === 1 ? s.toLowerCase() : s.toUpperCase();
+		},
+
+		url: function(usewww, xt){
+			var w = usewww ? "www." : "";
+			xt = xt || ".com";
+			return "http://" + w + this.site(1) + xt;
+		},
+
+		word: function(){
+			var w = this.real ? this.words : this.wurds;
+			return w[this.n(w.length)];
+		},
+
+		sentences: function(minAmt, maxAmt, minLen, maxLen){
+			// amt: sentences, len: words
+			minAmt = minAmt || 1;
+			maxAmt = maxAmt || minAmt;
+			minLen = minLen || 5;
+			maxLen = maxLen || minLen;
+
+			var
+				ii,
+				s = [],
+				t = "",
+				w = this.real ? this.words : this.wurds,
+				i = this.range(minAmt, maxAmt);
+
+			while(i--){
+
+				ii = this.range(minLen, maxLen); while(ii--){
+					s.push(w[this.n(w.length)]);
+				}
+				t += this.cap(s.join(" ")) +". ";
+			}
+			return t;
+		},
+
+		title: function(min, max){
+			min = min || 1; max = max || min;
+			var
+				a = [],
+				w = this.real ? this.words : this.wurds,
+				i = this.range(min, max);
+			while(i--){
+				a.push(this.cap(w[this.n(w.length)]));
+			}
+			return a.join(" ");
+		},
+		data: function(amt){
+			var
+				st,
+				items = [],
+				item,
+				i;
+			for(i = 0; i < amt; i++){
+				item = {
+					firstName: this.name(),
+					lastName: this.name(),
+					company: this.site(),
+					address1: this.bignumber(this.range(3, 5)),
+					address2: this.street(),
+					birthday: this.date({delimiter:'/'})
+				};
+				item.email = (item.firstName.substring(0,1) + item.lastName + '@' + item.company + '.com').toLowerCase();
+				st = this.cityState();
+				item.city = st.split(', ')[0];
+				item.state = st.split(', ')[1];
+				item.zipcode = this.bignumber(5);
+				item.phone = this.format(this.bignumber(10), 'phone');
+				item.ssn = this.format(this.bignumber(9), 'ssn');
+				items.push(item);
+			}
+			return items;
+		},
+
+		format: function (n, type) {
+			var d = '-';
+			switch (type) {
+				case 'phone':
+					n = '' + n;
+					return n.substring(0,3) + d + n.substring(3,6) + d + n.substring(6);
+				case 'ssn':
+					n = '' + n;
+					console.log(n);
+					return n.substring(0,3) + d + n.substring(3,5) + d + n.substring(5);
+			}
+		}
 	};
 	rand.wurds = words.replace(/a|e|i|o|u/g, function(c){ return ("aeiou")[rand.n(5)]; }).split(",");
 
