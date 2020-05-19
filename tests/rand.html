@@ -8,8 +8,25 @@
     <h1>rand</h1>
 	<textarea id='ta' style="width:500px; height: 400px;"></textarea>
 	<script>
-		var rand = window.rand;
-		document.getElementById('ta').value = JSON.stringify(rand.data(10), null, 4);
+        const rand = window.rand;
+        rand.real = true;
+        const node = document.getElementById('ta');
+		// node.value = JSON.stringify(rand.data(10), null, 4);
+        // node.value = JSON.stringify(rand.sentences(4,7,2,7), null, 4);
+        
+        let autos = rand.allCars()
+        // .map((auto) => {
+        //     return {
+        //         value: auto.label,
+        //         label: auto.label,
+        //         children: auto.children
+        //     }
+        // });
+        // console.log(autos);
+        // node.value = JSON.stringify(autos, null, 0);
+        
+        // node.value = JSON.stringify(rand.car(), null, 4);
+        node.value = JSON.stringify(rand.car('GMC'), null, 4);
 	</script>
 </body>
 </html>

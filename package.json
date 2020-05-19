@@ -3,7 +3,7 @@
    "author": "Mike Wilcox @clubajax",
    "main": "rand.js",
    "description": "A randomizer library for producing mock data",
-   "version": "1.1.3",
+   "version": "1.2.0",
    "license": "Unlicense",
    "readmeFilename": "README.md",
    "repository": {

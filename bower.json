@@ -1,8 +1,0 @@
-{
-    "name": "randomizer",
-    "version": "1.0.0",
-    "author": "Mike Wilcox @clubajax",
-    "description": "A randomizer library for producing mock data",
-    "license": "Unlicense",
-    "main": "rand.js"
-}
